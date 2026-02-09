@@ -2,7 +2,7 @@
 
 Access YouTube channel analytics, video metadata, and transcripts via official Google APIs + youtube-transcript-api.
 
-Built by **[Aaron Nev](https://github.com/aaronnev)** ([@aaron_nev](https://twitter.com/aaron_nev)) with **[Claude](https://claude.ai)**.
+Built by **[Aaron Nev](https://github.com/aaronnev)** ([@aaronnev_](https://x.com/aaronnev_)) with **[Claude](https://claude.ai)**.
 
 If you find this useful, give it a ⭐ — it helps others discover it!
 
@@ -106,7 +106,7 @@ PRs welcome! If you build something cool on top of this, let me know.
 ## Credits
 
 - **[Aaron Nev](https://github.com/aaronnev)** — Creator
-  - Twitter/X: [@aaron_nev](https://twitter.com/aaron_nev)
+  - X: [@aaronnev_](https://x.com/aaronnev_)
   - YouTube: [@aaron_nev](https://youtube.com/@aaron_nev)
 - **[Claude](https://claude.ai)** (Anthropic) — Pair programmer, security reviewer, co-author
 
