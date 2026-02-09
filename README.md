@@ -2,18 +2,24 @@
 
 Access YouTube channel analytics, video metadata, and transcripts via official Google APIs + youtube-transcript-api.
 
+Built by **[Aaron Nev](https://github.com/aaronnev)** ([@aaron_nev](https://twitter.com/aaron_nev)) with **[Claude](https://claude.ai)**.
+
+If you find this useful, give it a ⭐ — it helps others discover it!
+
+---
+
 ## Features
 
 - **Analytics** — Views, watch time, revenue, demographics, traffic sources (YouTube Studio data)
 - **Channel** — Subscriber count, video list, search within channel
 - **Video** — Metadata, comments, transcripts
-- **Transcript Library** — Batch download all your transcripts, search across them, cache external videos
+- **Transcript Library** — Batch download all your transcripts, search across them, cache external videos for research
 
-## Installation
+## Quick Start
 
 ```bash
 # Clone to OpenClaw skills directory
-git clone https://github.com/YOUR_USERNAME/youtube-skill.git ~/.openclaw/workspace/skills/youtube
+git clone https://github.com/aaronnev/youtube-skill.git ~/.openclaw/workspace/skills/youtube
 
 # Create config directory
 mkdir -p ~/.openclaw/skills-config/youtube
@@ -23,6 +29,9 @@ cp /path/to/client_secret.json ~/.openclaw/skills-config/youtube/
 
 # Run OAuth setup (opens browser)
 uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_auth.py --setup
+
+# Test it
+uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_channel.py info
 ```
 
 ## Prerequisites
@@ -31,30 +40,44 @@ uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_auth.py --setup
    - YouTube Data API v3
    - YouTube Analytics API
 
-2. **OAuth 2.0 Client ID** (Desktop app type) downloaded as `client_secret.json`
+2. **OAuth 2.0 Client ID** (Desktop app type) — download as `client_secret.json`
 
-3. **uv** installed ([astral.sh/uv](https://astral.sh/uv))
+3. **[uv](https://astral.sh/uv)** installed
 
-## Usage
+## Usage Examples
 
 ```bash
 # Channel info
-uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_channel.py info
+uv run yt_channel.py info
 
-# Analytics overview
-uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_analytics.py overview --days 7
+# Last 7 days analytics
+uv run yt_analytics.py overview --days 7
 
-# Get any video's transcript
-uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_video.py transcript VIDEO_ID
+# Top performing videos
+uv run yt_analytics.py top-videos --days 30
 
-# Sync all your transcripts
-uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_transcripts.py sync
+# Get any video's transcript (yours or anyone's)
+uv run yt_video.py transcript VIDEO_ID
 
-# Search across transcripts
-uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_transcripts.py search "topic"
+# Download all your channel's transcripts
+uv run yt_transcripts.py sync
+
+# Search across all your videos
+uv run yt_transcripts.py search "burnout"
+# Returns timestamps + clickable YouTube links
 ```
 
-See `SKILL.md` for full command reference.
+See **[SKILL.md](SKILL.md)** for the full command reference.
+
+## How It Works
+
+| Component | Source | Auth Required |
+|-----------|--------|---------------|
+| Analytics (Studio data) | YouTube Analytics API | Yes (OAuth) |
+| Channel info & video list | YouTube Data API v3 | Yes (OAuth) |
+| Transcripts | [youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api) | No |
+
+Transcripts use `youtube-transcript-api` which works on **any public video** — not just your own. Great for researching competitors or saving inspiring content.
 
 ## File Structure
 
@@ -70,12 +93,25 @@ See `SKILL.md` for full command reference.
 └── references/
     └── youtube-api-quickref.md           # API reference
 
-~/.openclaw/skills-config/youtube/        # NOT in repo (secrets)
+~/.openclaw/skills-config/youtube/        # Secrets (not in repo)
 ├── client_secret.json                    # Your OAuth credentials
 ├── token.json                            # Generated after auth
 └── transcripts/                          # Cached transcripts
 ```
 
+## Contributing
+
+PRs welcome! If you build something cool on top of this, let me know.
+
+## Credits
+
+- **[Aaron Nev](https://github.com/aaronnev)** — Creator
+  - Twitter/X: [@aaron_nev](https://twitter.com/aaron_nev)
+  - YouTube: [@aaron_nev](https://youtube.com/@aaron_nev)
+- **[Claude](https://claude.ai)** (Anthropic) — Pair programmer, security reviewer, co-author
+
+Built for [OpenClaw](https://github.com/openclaw) — an open-source AI agent framework.
+
 ## License
 
-MIT
+MIT — do whatever you want with it.
