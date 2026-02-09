@@ -1,0 +1,13 @@
+# Secrets - never commit these
+client_secret.json
+token.json
+
+# Cached transcripts (large, machine-specific)
+transcripts/
+transcript_index.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
