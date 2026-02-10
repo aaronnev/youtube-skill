@@ -1,6 +1,7 @@
 # Secrets - never commit these
 client_secret.json
 token.json
+*.credentials
 
 # Cached transcripts (large, machine-specific)
 transcripts/
@@ -11,3 +12,14 @@ __pycache__/
 *.pyc
 *.pyo
 .venv/
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

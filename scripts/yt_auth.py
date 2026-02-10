@@ -21,8 +21,12 @@ Usage:
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
+
+# Allow OAuth over HTTP for localhost (required for local dev server callback)
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -31,7 +35,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 # Scopes required for full YouTube access
 SCOPES = [
     "https://www.googleapis.com/auth/youtube.readonly",
-    "https://www.googleapis.com/auth/youtube.force-ssl",  # Required for captions download
     "https://www.googleapis.com/auth/yt-analytics.readonly",
     "https://www.googleapis.com/auth/yt-analytics-monetary.readonly",
 ]
@@ -54,12 +57,35 @@ def setup_oauth() -> bool:
 
     flow = InstalledAppFlow.from_client_secrets_file(str(CLIENT_SECRET_PATH), SCOPES)
 
-    # Run local server for OAuth callback
-    credentials = flow.run_local_server(
-        port=8080,
-        prompt="consent",
-        access_type="offline",  # Ensures we get a refresh token
-    )
+    # Workaround: run_local_server() internally calls authorization_url(access_type="offline")
+    # Some versions double-add access_type. Override the flow's code_verifier setup to avoid this.
+    import webbrowser
+    from wsgiref.simple_server import make_server
+    import urllib.parse
+
+    flow.redirect_uri = "http://localhost:8080/"
+    auth_url, state = flow.authorization_url(access_type="offline")
+
+    print(f"Opening browser for authorization...")
+    webbrowser.open(auth_url)
+
+    # Minimal local server to capture the callback
+    auth_response = [None]
+    class CallbackHandler:
+        def __init__(self, environ, start_response):
+            self.environ = environ
+            self.start_response = start_response
+        def __iter__(self):
+            qs = self.environ.get("QUERY_STRING", "")
+            auth_response[0] = f"http://localhost:8080/?{qs}"
+            self.start_response("200 OK", [("Content-Type", "text/html")])
+            yield b"<html><body><h1>Authorization complete!</h1><p>You can close this tab.</p></body></html>"
+
+    server = make_server("localhost", 8080, CallbackHandler)
+    server.handle_request()
+
+    flow.fetch_token(authorization_response=auth_response[0])
+    credentials = flow.credentials
 
     # Save credentials
     token_data = {

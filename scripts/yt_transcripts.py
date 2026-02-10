@@ -18,8 +18,7 @@ Usage:
     uv run yt_transcripts.py sync [--force]           # Download all YOUR channel's transcripts
     uv run yt_transcripts.py search <query> [--max N] # Search across transcripts
     uv run yt_transcripts.py list                     # List cached transcripts
-    uv run yt_transcripts.py get <VIDEO_ID>           # Get any video's transcript (cached or fetch)
-    uv run yt_transcripts.py external <VIDEO_ID>      # Fetch & cache external video transcript
+    uv run yt_transcripts.py get <VIDEO_ID> [--timed] # Get any video's transcript (cached or fetch)
 """
 
 import argparse
