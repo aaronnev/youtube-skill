@@ -10,6 +10,8 @@ Your YouTube Studio analytics + transcripts from any public video on YouTube. Al
 - **Pull any video's transcript** — yours, MrBeast's, anyone's. Free, unlimited.
 - **Real Studio data** — demographics, traffic sources, watch time, revenue. Not just public view counts.
 - **Automated briefings** — "how did my videos do this week?" every morning via OpenClaw
+- **Free** — uses Google's free API tier (10,000 units/day) + transcript pulls cost nothing
+- **Secure** — OAuth 2.0, credentials stay on your machine. No third-party services, no proxies.
 
 ## Usage
 
