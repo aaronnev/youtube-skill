@@ -1,44 +1,30 @@
-# YouTube Skill
+# youtube-skill
 
-Give your AI agent full access to YouTube. Analytics, transcripts, video data — the stuff you actually need.
+Give your AI agent the ability to read and understand YouTube. Built for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenClaw](https://openclaw.ai).
 
-1,597 lines of Python across 5 scripts. Not a wrapper around one endpoint. A full toolkit that lets Claude (or any AI agent) pull YouTube Studio analytics, download transcripts from any public video, and search across your entire channel's content.
+## What it does
 
-Built for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenClaw](https://github.com/openclaw). Works standalone too.
+Your YouTube Studio analytics + transcripts from any public video on YouTube. All accessible to your AI agent.
 
-## What you can actually do with this
+- **Search across your entire channel** — "when did I talk about burnout?" → timestamps + clickable YouTube links
+- **Pull any video's transcript** — yours, MrBeast's, anyone's. Free, unlimited.
+- **Real Studio data** — demographics, traffic sources, watch time, revenue. Not just public view counts.
+- **Automated briefings** — "how did my videos do this week?" every morning via OpenClaw
 
-Ask your AI agent things like:
+## Usage
 
-**Analytics — real YouTube Studio data, not just public view counts:**
 ```
-"How did my channel do this week?"
-"What are my top 10 videos in the last 30 days?"
-"Show me traffic sources — where are viewers finding me?"
-"Break down my audience demographics"
-"Which countries are watching the most?"
-```
-
-**Transcripts — this is the killer feature:**
-```
-"Download all my video transcripts"
-"When did I talk about burnout?" → returns timestamps + clickable YouTube links
-"Search all my videos for 'creative block'"
-"Get the transcript from this MrBeast video"
-"Pull transcripts from these 5 competitor channels"
+"find every time MrBeast mentions money"
+"how did my last video perform?"
+"pull the transcript from Lex Fridman's latest"
+"when did MKBHD talk about the iPhone camera?"
+"search all my videos for when I said burnout"
 ```
 
-**Channel & video data:**
-```
-"How many subscribers do I have?"
-"List my last 20 videos sorted by views"
-"Show me the top comments on this video"
-"Get full metadata for this video"
-```
+## Real things I've done with it
 
-**Real things I've done with it:**
 - Downloaded 29 video transcripts in one command, then searched across all of them for recurring themes
-- Set up an automated morning briefing: "how did my videos do this week?" via OpenClaw on Telegram
+- Set up automated morning briefings: "how did my videos do this week?" via OpenClaw on Telegram
 - Researched competitor channels by pulling their transcripts and finding what topics they cover
 - Found the exact timestamp where I mentioned a topic 8 months ago — with a clickable link that jumps right to it
 
@@ -102,8 +88,8 @@ uv run scripts/yt_analytics.py overview --days 7
 # Top performing videos
 uv run scripts/yt_analytics.py top-videos --days 30 --max 10
 
-# Single video deep dive
-uv run scripts/yt_analytics.py video VIDEO_ID --days 28
+# Single video deep dive (use any video ID)
+uv run scripts/yt_analytics.py video dQw4w9WgXcQ --days 28
 
 # Audience demographics (age + gender breakdown)
 uv run scripts/yt_analytics.py demographics --days 28
@@ -119,16 +105,16 @@ uv run scripts/yt_analytics.py geography --days 28
 
 ```bash
 # Full metadata (title, duration, views, likes, tags, description)
-uv run scripts/yt_video.py details VIDEO_ID
+uv run scripts/yt_video.py details dQw4w9WgXcQ
 
-# Top comments
-uv run scripts/yt_video.py comments VIDEO_ID --max 20
+# Top comments on an MKBHD video
+uv run scripts/yt_video.py comments dQw4w9WgXcQ --max 20
 
 # Transcript — works on ANY public video, not just yours
-uv run scripts/yt_video.py transcript VIDEO_ID
+uv run scripts/yt_video.py transcript dQw4w9WgXcQ
 
 # Transcript with timestamps
-uv run scripts/yt_video.py transcript VIDEO_ID --timed
+uv run scripts/yt_video.py transcript dQw4w9WgXcQ --timed
 ```
 
 ### Transcripts (batch)
@@ -196,12 +182,12 @@ For Claude Code, the scripts work directly — just point Claude at the `scripts
 
 ## Credits
 
-Built by **[Aaron Nev](https://github.com/aaronnev)** with **[Claude](https://claude.ai)**.
+1,597 lines of Python across 5 scripts. Built by **[Aaron Nev](https://github.com/aaronnev)** with **[Claude](https://claude.ai)**.
 
 - X: [@aaronnev_](https://x.com/aaronnev_)
 - YouTube: [@aaron_nev](https://youtube.com/@aaron_nev)
 
-Built for [OpenClaw](https://github.com/openclaw) — an open-source AI agent platform.
+Built for [OpenClaw](https://openclaw.ai) — an open-source AI agent platform.
 
 ## License
 
