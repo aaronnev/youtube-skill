@@ -180,42 +180,44 @@ def cmd_comments(args):
 def cmd_transcript(args):
     """Get video transcript using youtube-transcript-api."""
     try:
-        # Fetch transcript - tries English first, then any available
-        transcript_list = YouTubeTranscriptApi.list_transcripts(args.video_id)
-
-        # Try to get English transcript (manual or auto-generated)
-        transcript = None
+        ytt = YouTubeTranscriptApi()
+        # Fetch transcript - tries English first via list, then direct fetch
+        transcript_meta = None
         try:
-            transcript = transcript_list.find_transcript(['en', 'en-US', 'en-GB'])
-        except NoTranscriptFound:
-            # Fall back to any available transcript
-            try:
-                transcript = transcript_list.find_generated_transcript(['en', 'en-US', 'en-GB'])
-            except NoTranscriptFound:
-                # Get whatever is available
-                for t in transcript_list:
-                    transcript = t
+            transcript_list = ytt.list(args.video_id)
+            for t in transcript_list:
+                if t.language_code in ('en', 'en-US', 'en-GB'):
+                    transcript_meta = t
                     break
+            if not transcript_meta:
+                # Take whatever is available
+                for t in transcript_list:
+                    transcript_meta = t
+                    break
+        except Exception:
+            pass
 
-        if not transcript:
-            print("No transcript available for this video.")
-            return
+        if transcript_meta:
+            result = transcript_meta.fetch()
+            lang_label = f"{transcript_meta.language} - {'auto-generated' if transcript_meta.is_generated else 'manual'}"
+        else:
+            # Direct fetch as fallback
+            result = ytt.fetch(args.video_id)
+            lang_label = f"{result.language} - {'auto-generated' if result.is_generated else 'manual'}"
 
-        segments = transcript.fetch()
+        snippets = result.snippets if hasattr(result, 'snippets') else result
 
-        print(f"Transcript ({transcript.language} - {'auto-generated' if transcript.is_generated else 'manual'}):")
+        print(f"Transcript ({lang_label}):")
         print(f"Video: https://youtu.be/{args.video_id}")
         print("-" * 40)
 
         if args.timed:
-            for segment in segments:
-                ts = format_timestamp(segment['start'])
-                text = segment['text'].replace('\n', ' ')
+            for segment in snippets:
+                ts = format_timestamp(segment.start)
+                text = segment.text.replace('\n', ' ')
                 print(f"[{ts}] {text}")
         else:
-            # Plain text - join all segments
-            full_text = ' '.join(segment['text'].replace('\n', ' ') for segment in segments)
-            # Clean up multiple spaces
+            full_text = ' '.join(segment.text.replace('\n', ' ') for segment in snippets)
             full_text = re.sub(r'\s+', ' ', full_text)
             print(full_text)
 

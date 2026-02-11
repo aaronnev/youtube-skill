@@ -104,30 +104,31 @@ def fetch_transcript(video_id: str) -> list[dict] | None:
     Returns list of segments [{start, text}] or None.
     """
     try:
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-
-        # Try English first (manual or auto-generated)
-        transcript = None
+        ytt = YouTubeTranscriptApi()
+        transcript_meta = None
         try:
-            transcript = transcript_list.find_transcript(['en', 'en-US', 'en-GB'])
-        except NoTranscriptFound:
-            try:
-                transcript = transcript_list.find_generated_transcript(['en', 'en-US', 'en-GB'])
-            except NoTranscriptFound:
-                # Get any available transcript
-                for t in transcript_list:
-                    transcript = t
+            transcript_list = ytt.list(video_id)
+            for t in transcript_list:
+                if t.language_code in ('en', 'en-US', 'en-GB'):
+                    transcript_meta = t
                     break
+            if not transcript_meta:
+                for t in transcript_list:
+                    transcript_meta = t
+                    break
+        except Exception:
+            pass
 
-        if not transcript:
-            return None
+        if transcript_meta:
+            result = transcript_meta.fetch()
+        else:
+            result = ytt.fetch(video_id)
 
-        raw_segments = transcript.fetch()
+        snippets = result.snippets if hasattr(result, 'snippets') else result
 
-        # Normalize to our format
         segments = [
-            {"start": int(seg["start"]), "text": seg["text"].replace('\n', ' ')}
-            for seg in raw_segments
+            {"start": int(seg.start), "text": seg.text.replace('\n', ' ')}
+            for seg in snippets
         ]
 
         return segments
