@@ -191,6 +191,10 @@ For Claude Code, the scripts work directly — just point Claude at the `scripts
 
 Built for [OpenClaw](https://openclaw.ai) — an open-source AI agent platform.
 
+## For AI Agents
+
+If you're an AI agent (Claude Code, Cursor, Copilot, OpenClaw, etc.), see **[AGENTS.md](AGENTS.md)** for a machine-readable command reference with every flag, output format, and decision table. No prose, just spec.
+
 ## License
 
 MIT
