@@ -14,10 +14,12 @@ YouTube Video Script
 Get video details, comments, and transcripts.
 
 Usage:
-    uv run yt_video.py details <VIDEO_ID>             # Full metadata
-    uv run yt_video.py comments <VIDEO_ID> [--max N]  # Top comments
-    uv run yt_video.py transcript <VIDEO_ID>          # Get transcript (any public video)
-    uv run yt_video.py transcript <VIDEO_ID> --timed  # With timestamps
+    uv run yt_video.py details <VIDEO_ID>                          # Full metadata
+    uv run yt_video.py comments <VIDEO_ID> [--max N]               # Top comments
+    uv run yt_video.py transcript <VIDEO_ID>                       # Get transcript (any public video)
+    uv run yt_video.py transcript <VIDEO_ID> --timed               # With timestamps
+    uv run yt_video.py transcript <VIDEO_ID> --search "keyword"    # Find moments matching keyword
+    uv run yt_video.py transcript <VIDEO_ID> --search "keyword" --context 2  # With surrounding lines
 """
 
 import argparse
@@ -206,18 +208,57 @@ def cmd_transcript(args):
             lang_label = f"{result.language} - {'auto-generated' if result.is_generated else 'manual'}"
 
         snippets = result.snippets if hasattr(result, 'snippets') else result
+        snippet_list = list(snippets)
 
         print(f"Transcript ({lang_label}):")
         print(f"Video: https://youtu.be/{args.video_id}")
         print("-" * 40)
 
-        if args.timed:
-            for segment in snippets:
+        if args.search:
+            # Search mode: find matching segments with context
+            search_lower = args.search.lower()
+            context = getattr(args, 'context', 1)
+            matches = []
+            seen = set()
+
+            # Build sliding window of combined text for phrase matching
+            for i, segment in enumerate(snippet_list):
+                # Combine current + next few segments for phrase matching across boundaries
+                window_texts = []
+                for j in range(i, min(i + 3, len(snippet_list))):
+                    window_texts.append(snippet_list[j].text.lower())
+                combined = ' '.join(window_texts)
+
+                if search_lower in combined:
+                    # Add surrounding context lines
+                    start = max(0, i - context)
+                    end = min(len(snippet_list), i + context + 1)
+                    for j in range(start, end):
+                        if j not in seen:
+                            seen.add(j)
+                            matches.append(snippet_list[j])
+
+            if not matches:
+                print(f"No matches found for: {args.search}")
+                return
+
+            print(f"Found {len(matches)} segments matching '{args.search}':\n")
+            for segment in matches:
+                ts = format_timestamp(segment.start)
+                t_sec = int(segment.start)
+                text = segment.text.replace('\n', ' ')
+                link = f"https://youtu.be/{args.video_id}?t={t_sec}"
+                print(f"[{ts}] {text}")
+                print(f"       → {link}")
+                print()
+
+        elif args.timed:
+            for segment in snippet_list:
                 ts = format_timestamp(segment.start)
                 text = segment.text.replace('\n', ' ')
                 print(f"[{ts}] {text}")
         else:
-            full_text = ' '.join(segment.text.replace('\n', ' ') for segment in snippets)
+            full_text = ' '.join(segment.text.replace('\n', ' ') for segment in snippet_list)
             full_text = re.sub(r'\s+', ' ', full_text)
             print(full_text)
 
@@ -248,6 +289,8 @@ def main():
     transcript_parser = subparsers.add_parser("transcript", help="Get video transcript")
     transcript_parser.add_argument("video_id", help="YouTube video ID")
     transcript_parser.add_argument("--timed", action="store_true", help="Include timestamps")
+    transcript_parser.add_argument("--search", type=str, help="Search for keyword/phrase in transcript")
+    transcript_parser.add_argument("--context", type=int, default=1, help="Number of surrounding lines to show with search results (default: 1)")
 
     args = parser.parse_args()
 

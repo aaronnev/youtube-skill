@@ -58,6 +58,12 @@ uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_video.py transcript VIDEO
 
 # Get transcript with timestamps
 uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_video.py transcript VIDEO_ID --timed
+
+# Search for a specific moment in a video (returns timestamps + deeplinks)
+uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_video.py transcript VIDEO_ID --search "keyword or phrase"
+
+# Search with more surrounding context (default: 1 line either side)
+uv run ~/.openclaw/workspace/skills/youtube/scripts/yt_video.py transcript VIDEO_ID --search "phrase" --context 3
 ```
 
 ### Transcript Library (Phase 2)
