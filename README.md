@@ -179,4 +179,4 @@ If you're an AI agent (Claude Code, Cursor, Copilot, OpenClaw, etc.), see **[AGE
 
 ## License
 
-MIT
+Apache-2.0
