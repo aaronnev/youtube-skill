@@ -2,7 +2,7 @@
 
 Give your AI agent the ability to read and understand YouTube. Built for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenClaw](https://openclaw.ai).
 
-## What it does
+## What It Does
 
 Your YouTube Studio analytics + transcripts from any public video on YouTube. All accessible to your AI agent.
 
@@ -13,7 +13,46 @@ Your YouTube Studio analytics + transcripts from any public video on YouTube. Al
 - **Free** — uses Google's free API tier (10,000 units/day) + transcript pulls cost nothing
 - **Secure** — OAuth 2.0, credentials stay on your machine. No third-party services, no proxies.
 
-## Usage
+## Getting Started
+
+You need [uv](https://astral.sh/uv) (Python package runner) and a Google Cloud project.
+
+### 1. Google Cloud setup (2 minutes)
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a project (or use an existing one)
+3. Enable **YouTube Data API v3** and **YouTube Analytics API**
+4. Go to **Credentials** → Create **OAuth 2.0 Client ID** (Desktop app)
+5. Download the JSON → rename to `client_secret.json`
+
+### 2. Install
+
+```bash
+git clone https://github.com/aaronnev/youtube-skill.git
+cd youtube-skill
+mkdir -p ~/.openclaw/skills-config/youtube
+cp /path/to/client_secret.json ~/.openclaw/skills-config/youtube/
+```
+
+### 3. Authenticate
+
+```bash
+uv run scripts/yt_auth.py --setup
+```
+
+Opens a browser, one-time setup. That's it. `uv` handles all Python dependencies automatically.
+
+### 4. Try it
+
+```bash
+uv run scripts/yt_channel.py info
+```
+
+## How to Use
+
+### Ask your agent
+
+If you're using OpenClaw or Claude Code, just ask naturally:
 
 ```
 "find every time MrBeast mentions money"
@@ -23,125 +62,17 @@ Your YouTube Studio analytics + transcripts from any public video on YouTube. Al
 "search all my videos for when I said burnout"
 ```
 
-## Real things I've done with it
+### Real things I've done with it
 
 - Downloaded 29 video transcripts in one command, then searched across all of them for recurring themes
 - Set up automated morning briefings: "how did my videos do this week?" via OpenClaw on Telegram
 - Researched competitor channels by pulling their transcripts and finding what topics they cover
 - Found the exact timestamp where I mentioned a topic 8 months ago — with a clickable link that jumps right to it
 
-## Quick start
+### Transcript search
 
-You need [uv](https://astral.sh/uv) (Python package runner) and a Google Cloud project with YouTube APIs enabled.
+This is the killer feature. Search across ALL your videos with timestamps and clickable links:
 
-```bash
-# 1. Clone it
-git clone https://github.com/aaronnev/youtube-skill.git
-cd youtube-skill
-
-# 2. Set up your credentials directory
-mkdir -p ~/.openclaw/skills-config/youtube
-
-# 3. Drop in your Google OAuth client_secret.json
-#    (Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client → Desktop app)
-cp /path/to/client_secret.json ~/.openclaw/skills-config/youtube/
-
-# 4. Authenticate (opens browser, one-time setup)
-uv run scripts/yt_auth.py --setup
-
-# 5. Try it
-uv run scripts/yt_channel.py info
-```
-
-That's it. `uv` handles all Python dependencies automatically — no virtualenv, no pip install, no requirements.txt.
-
-### Google Cloud setup (2 minutes)
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a project (or use an existing one)
-3. Enable **YouTube Data API v3** and **YouTube Analytics API**
-4. Go to **Credentials** → Create **OAuth 2.0 Client ID** (Desktop app)
-5. Download the JSON → rename to `client_secret.json`
-
-## Commands
-
-### Channel
-
-```bash
-# Channel stats (subscribers, total views, video count)
-uv run scripts/yt_channel.py info
-
-# List recent videos
-uv run scripts/yt_channel.py videos --max 20
-
-# List by view count
-uv run scripts/yt_channel.py videos --max 20 --order viewCount
-
-# Search within your channel (costs 100 API quota units)
-uv run scripts/yt_channel.py search "topic keywords"
-```
-
-### Analytics
-
-```bash
-# Channel overview (views, watch time, subscribers, revenue)
-uv run scripts/yt_analytics.py overview --days 7
-
-# Top performing videos
-uv run scripts/yt_analytics.py top-videos --days 30 --max 10
-
-# Single video deep dive (use any video ID)
-uv run scripts/yt_analytics.py video dQw4w9WgXcQ --days 28
-
-# Audience demographics (age + gender breakdown)
-uv run scripts/yt_analytics.py demographics --days 28
-
-# Traffic sources (search, suggested, external, etc.)
-uv run scripts/yt_analytics.py traffic --days 28
-
-# Geographic breakdown
-uv run scripts/yt_analytics.py geography --days 28
-```
-
-### Video
-
-```bash
-# Full metadata (title, duration, views, likes, tags, description)
-uv run scripts/yt_video.py details dQw4w9WgXcQ
-
-# Top comments on an MKBHD video
-uv run scripts/yt_video.py comments dQw4w9WgXcQ --max 20
-
-# Transcript — works on ANY public video, not just yours
-uv run scripts/yt_video.py transcript dQw4w9WgXcQ
-
-# Transcript with timestamps
-uv run scripts/yt_video.py transcript dQw4w9WgXcQ --timed
-```
-
-### Transcripts (batch)
-
-This is where it gets interesting.
-
-```bash
-# Download ALL your channel's transcripts (one-time sync, then incremental)
-uv run scripts/yt_transcripts.py sync
-
-# Force re-download everything
-uv run scripts/yt_transcripts.py sync --force
-
-# Search across ALL your videos — returns timestamps + clickable YouTube links
-uv run scripts/yt_transcripts.py search "burnout"
-uv run scripts/yt_transcripts.py search "creative block" --max 50
-
-# Fetch and cache any external video's transcript
-uv run scripts/yt_transcripts.py get dQw4w9WgXcQ
-
-# List everything in your transcript library
-uv run scripts/yt_transcripts.py list
-```
-
-Search output looks like this:
 ```
 Found 7 matches for 'burnout':
 
@@ -150,15 +81,68 @@ Found 7 matches for 'burnout':
          https://youtu.be/abc123?t=263
   [12:07] "...dealing with burnout is not about working less..."
           https://youtu.be/abc123?t=727
-
-📹 My Creative Process (Honest Version)
-  [8:41] "...after the burnout period I changed how I..."
-         https://youtu.be/def456?t=521
 ```
 
 Every match links directly to that moment in the video.
 
-## How it works
+### Search within a single video
+
+```bash
+# Find every mention of "camera" in an MKBHD video with 2 lines of context
+uv run scripts/yt_video.py transcript dQw4w9WgXcQ --search "camera" --context 2
+```
+
+## Commands
+
+### Channel
+
+```bash
+uv run scripts/yt_channel.py info                              # Channel stats
+uv run scripts/yt_channel.py videos --max 20                   # Recent videos
+uv run scripts/yt_channel.py videos --max 20 --order viewCount # By views
+uv run scripts/yt_channel.py search "topic keywords"           # Search your channel
+```
+
+### Analytics
+
+```bash
+uv run scripts/yt_analytics.py overview --days 7        # Views, watch time, subs, revenue
+uv run scripts/yt_analytics.py top-videos --days 30     # Top performing videos
+uv run scripts/yt_analytics.py video VIDEO_ID --days 28 # Single video deep dive
+uv run scripts/yt_analytics.py demographics --days 28   # Age + gender breakdown
+uv run scripts/yt_analytics.py traffic --days 28        # Traffic sources
+uv run scripts/yt_analytics.py geography --days 28      # Geographic breakdown
+```
+
+### Video
+
+```bash
+uv run scripts/yt_video.py details VIDEO_ID              # Full metadata
+uv run scripts/yt_video.py comments VIDEO_ID --max 20    # Top comments
+uv run scripts/yt_video.py transcript VIDEO_ID           # Plain transcript
+uv run scripts/yt_video.py transcript VIDEO_ID --timed   # With timestamps
+uv run scripts/yt_video.py transcript VIDEO_ID --search "keyword"             # Search within video
+uv run scripts/yt_video.py transcript VIDEO_ID --search "keyword" --context 3 # With surrounding lines
+```
+
+### Transcripts (batch)
+
+```bash
+uv run scripts/yt_transcripts.py sync                  # Download all your channel's transcripts
+uv run scripts/yt_transcripts.py sync --force           # Re-download everything
+uv run scripts/yt_transcripts.py search "burnout"       # Search across ALL videos
+uv run scripts/yt_transcripts.py search "creative block" --max 50
+uv run scripts/yt_transcripts.py get VIDEO_ID           # Fetch + cache any video's transcript
+uv run scripts/yt_transcripts.py list                   # Everything in your library
+```
+
+## Cost
+
+Free. Google's YouTube Data API gives you 10,000 units/day at no cost. Transcript pulls use `youtube-transcript-api` which costs nothing. Analytics uses YouTube Analytics API v2 (also free).
+
+The only thing that costs quota is channel search (100 units per call). Normal use won't come close to the daily limit.
+
+## How It Works
 
 Five standalone Python scripts, each with inline dependency declarations ([PEP 723](https://peps.python.org/pep-0723/)). Run any of them with `uv run` — dependencies install automatically on first run.
 
@@ -166,21 +150,19 @@ Five standalone Python scripts, each with inline dependency declarations ([PEP 7
 |--------|-------------|-----|
 | `yt_auth.py` | OAuth setup, token refresh, revoke | Google OAuth 2.0 |
 | `yt_channel.py` | Channel stats, video list, search | YouTube Data API v3 |
-| `yt_video.py` | Video metadata, comments, transcripts | YouTube Data API v3 + [youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api) |
+| `yt_video.py` | Video metadata, comments, transcript + search | YouTube Data API v3 + youtube-transcript-api |
 | `yt_analytics.py` | Studio analytics (views, revenue, demographics, traffic, geography) | YouTube Analytics API v2 |
 | `yt_transcripts.py` | Batch sync, full-text search, transcript caching | YouTube Data API v3 + youtube-transcript-api |
 
-**Transcripts work on any public YouTube video** — yours or anyone else's. They use `youtube-transcript-api` which pulls auto-generated or manual captions directly. No API key needed for that part.
+**Transcripts work on any public YouTube video** — yours or anyone else's. No API key needed for that part.
 
-**Analytics gives you the real data** — the same numbers you see in YouTube Studio. Demographics, traffic sources, revenue, watch time. Not just the public view count.
+**Analytics gives you the real data** — the same numbers you see in YouTube Studio. Not just the public view count.
 
 **Credentials** live in `~/.openclaw/skills-config/youtube/` (outside the repo). Transcripts are cached locally as JSON with full-text indexes for fast searching.
 
 ### For OpenClaw / Claude Code
 
-Drop this repo in `~/.openclaw/workspace/skills/youtube/` and the `SKILL.md` file tells the agent when and how to use each command. Works out of the box with OpenClaw's skill auto-discovery.
-
-For Claude Code, the scripts work directly — just point Claude at the `scripts/` directory.
+Drop this repo in `~/.openclaw/workspace/skills/youtube/` and the `SKILL.md` file tells the agent when and how to use each command. Works out of the box.
 
 ## Credits
 
@@ -193,7 +175,7 @@ Built for [OpenClaw](https://openclaw.ai) — an open-source AI agent platform.
 
 ## For AI Agents
 
-If you're an AI agent (Claude Code, Cursor, Copilot, OpenClaw, etc.), see **[AGENTS.md](AGENTS.md)** for a machine-readable command reference with every flag, output format, and decision table. No prose, just spec.
+If you're an AI agent (Claude Code, Cursor, Copilot, OpenClaw, etc.), see **[AGENTS.md](AGENTS.md)** for a machine-readable command reference with every flag, output format, and decision table.
 
 ## License
 
